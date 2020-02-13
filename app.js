@@ -57,18 +57,6 @@ function findClosedPathWithinBorder(initialEdge, borderPath) {
     // edge cannot be an external edge of borderPath
 }
 
-function getInteriorEdges(borderPath) {
-
-}
-
-function findInteriorPolys(borderPath) {
-    // find an interior edge
-}
-
-function findExteriorPolys(startNode) {
-
-}
-
 function borderPathToPoly(borderPath) {
 
 }
