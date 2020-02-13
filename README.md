@@ -1,6 +1,6 @@
 This is my solution to a computational geometry problem to find all the 'interior faces' (i.e. polygons) of a connected, planar graph.
 
-Algorithm overview:
+### Algorithm overview:
 
 The algorithm I developed takes a divide and conquer approach. It starts by finding a random[0] closed path (representing a potentially 'composite'[1] polygon) to partition the graph into two regions: one on the interior of the found path, one exterior.
 
