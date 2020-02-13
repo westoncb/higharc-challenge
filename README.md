@@ -10,4 +10,5 @@ The algorithm bottoms out when one of the random closed paths it finds is itself
 
 -------------
 [0] The 'randomness' here just comes from the input data not having any specified order.
+
 [1] By 'composite' polygon I'm referring to closed paths which form polygons, but also have within them additional closed paths that form polygons. 'Atomic' polygons have no additional vertices on their interior.
