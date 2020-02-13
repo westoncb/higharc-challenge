@@ -31,7 +31,7 @@ function findPolysAux(rootEdge, borderPath) {
     }
 
     do {
-        interiorPath = findSomeClosedPath(rootEdge)
+        interiorPath = findClosedPathWithinBorder(rootEdge, borderPath)
 
         const interiorPolys = findPolysAux(null, interiorPath)
 
@@ -47,7 +47,7 @@ function findPolysAux(rootEdge, borderPath) {
     } while (rootEdge)
 }
 
-function findClosedPathInBorder(initialEdge, borderPath) {
+function findClosedPathWithinBorder(initialEdge, borderPath) {
     const closedPath = []
 
     // Edge following conditions:
