@@ -4,7 +4,7 @@ Algorithm overview:
 
 The algorithm I developed takes a divide and conquer approach. It starts by finding a random[0] closed path (representing a potentially 'composite'[1] polygon) to partition the graph into two regions: one on the interior of the found path, one exterior.
 
-The algorithm then recurses, repeating the same behavior within the boundary if closed path which was found at the previous level: this subgraph is also a connected, planar graph; the only difference is we know its boundary explicitly (which is unknown at the top level).
+The algorithm then recurses, repeating the same behavior within the boundary of the closed path which was found at the previous level: this subgraph is also a connected, planar graph; the only difference is we know its boundary explicitly (which is unknown at the top level).
 
 The algorithm bottoms out when one of the random closed paths it finds is itself an 'atomic' polygon rather than composite.
 
