@@ -10,7 +10,7 @@ window.onload = () => {
 function findPolys(data) {
 
     // make graph
-    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: [] }})
+    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: []}})
     const edges = data.edges.map(edge => {
         return { v1: vertices[edge[0]], v2: vertices[edge[1]], free: true, onPath: false}
     })
@@ -47,7 +47,13 @@ function findPolysAux(rootEdge, borderPath) {
         // This will find a free external edge to one of our completed closed paths.
         // It avoids picking up internal edges since they will all have been marked
         // non-free at this point, since the algorithm is depth first.
-        rootEdge = completedPaths.find(completedPath => findBorderTransitionEdge(completedPath, edge => edge.free))        
+
+        let pathIndex = 0
+        do {
+            rootEdge = findTransitionEdge(completedPaths[pathIndex++], edge => edge.free)
+        } while (!rootEdge)
+
+        
 
     } while (rootEdge)
 
@@ -55,11 +61,51 @@ function findPolysAux(rootEdge, borderPath) {
 }
 
 function findFreeInternalEdge(borderPath) {
-    findBorderTransitionEdge(borderPath, edge => isEdgeInternal(edge, borderPath))
+    findTransitionEdge(borderPath, edge => isEdgeInternal(edge, borderPath))
 }
 
-function findBorderTransitionEdge(borderPath, func) {
-    borderPath.find(path => path.find(pathEdge => pathEdge.v1.edges.find(edge => !edge.onPath && func(edge))))
+function findTransitionEdge(borderPath, func) {
+    traverseTransitionEdges(borderPath, transitionEdge => !func(transitionEdge))
+}
+
+/**
+ * Iterates through the 'transition edges' of a path, calling the given function
+ * with the each transition edge as a param. Traversal will finish when the provided function
+ * returns false, or there are no transition edges remaining.
+ * 
+ * The 'transition edges' of a path are the edges connected to vertices on the path  which
+ * are not themselves on the path. If the path is closed, they are the edges leading either
+ * to the interior or exterior of the path from the path itself.
+ */
+function traverseTransitionEdges(path, func) {
+    let pathEdgeIndex = 0
+    let transitionEdgeIndex = 0
+    let pathEdge
+    let transitionEdge
+    let keepGoing = true
+
+    do {
+
+        if (pathEdgeIndex === path.length) {
+            return
+        } else {
+            pathEdge = path[pathEdgeIndex]
+
+            if (transitionEdgeIndex < pathEdge.v1.edges.length) {
+
+                transitionEdge = pathEdge.v1.edges[transitionEdgeIndex]
+
+                if (!transitionEdge.onPath) {
+                    keepGoing = func(transitionEdge)
+                }
+
+                transitionEdgeIndex++
+            } else {
+
+                pathEdgeIndex++
+            }
+        }
+    } while (keepGoing)
 }
 
 function isEdgeInternal(edge, path) {
@@ -69,7 +115,7 @@ function isEdgeInternal(edge, path) {
     edge.v2
 }
 
-function findClosedPathWithinBorder(initialEdge, borderPath) {
+function findClosedPathWithinBorder(initialEdge, borderPath = []) {
     const closedPath = []
 
     // Edge following conditions:
