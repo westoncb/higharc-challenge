@@ -7,17 +7,21 @@ window.onload = () => {
     findPolys(data)
 }
 
-function findPolys(data) {
-
-    // make graph
-    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: []}})
+function makeGraph(data) {
+    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: [] } })
     const edges = data.edges.map(edge => {
-        return { v1: vertices[edge[0]], v2: vertices[edge[1]], free: true, onPath: false}
+        return { v1: vertices[edge[0]], v2: vertices[edge[1]], free: true, onPath: false }
     })
 
-    // edges.forEach(edge => {
-    //     edge.v1    
-    // })
+    edges.forEach(edge => {
+        edge.v1.edges.push(edge)
+        edge.v2.edges.push(edge)
+    })
+}
+
+function findPolys(data) {
+
+    makeGraph(data)
 
     return findPolysAux(edges[0], null)
 }
