@@ -51,7 +51,6 @@ function findPolysAux(rootEdge, borderPath) {
         do {
             rootEdge = findTransitionEdge(completedPaths[pathIndex++], edge => edge.free)
         } while (!rootEdge && pathIndex < completedPaths.length)
-
         
 
     } while (rootEdge)
@@ -84,7 +83,6 @@ function traverseTransitionEdges(path, func) {
     let keepGoing = true
 
     do {
-
         if (pathEdgeIndex === path.length) {
             return
         } else {
@@ -105,6 +103,8 @@ function traverseTransitionEdges(path, func) {
             }
         }
     } while (keepGoing)
+
+    return transitionEdge
 }
 
 function isEdgeInternal(edge, path) {
