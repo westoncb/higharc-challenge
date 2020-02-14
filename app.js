@@ -44,53 +44,22 @@ function findPolysAux(rootEdge, borderPath) {
 
         completedClosedPaths.push(newClosedPath)
 
-        rootEdge = findFreeExternalEdge(completedClosedPaths)
-
+        // This will find a free external edge to one of our completed closed paths.
+        // It avoids picking up internal edges since they will all have been marked
+        // non-free at this point, since the algorithm is depth first.
+        rootEdge = findBorderTransitionEdge(completedClosedPaths, edge => edge.free)
 
     } while (rootEdge)
 
     return polys
 }
 
-function findFreeExternalEdge(completedClosedPaths) {
-
-    // Since all the paths here have been completed, only their external edges are free
-    return completedClosedPaths.find(path => path.find(completedEdge => completedEdge.v1.edges.find(edge => edge.free)))
+function findFreeInternalEdge(borderPath) {
+    findBorderTransitionEdge(borderPath, edge => isEdgeInternal(edge, borderPath))
 }
 
-function findFreeInternalEdge(path) {
-    
-}
-
-function traverseBorderTransitionEdges(borderPath, func) {
-    let borderEdgeIndex = 0
-    let transitionEdgeIndex = 0
-    let borderEdge
-    let transitionEdge
-    let keepGoing = true
-    
-    do {
-
-        if (borderEdgeIndex === borderPath.length) {
-            return
-        } else {
-            borderEdge = borderPath[borderEdgeIndex]
-
-            if (transitionEdgeIndex < borderEdge.v1.edges.length) {
-
-                transitionEdge = borderEdge.v1.edges[transitionEdgeIndex]
-
-                if (!transitionEdge.onPath) {
-                    keepGoing = func(transitionEdge)
-                }
-
-                transitionEdgeIndex++
-            } else {
-
-                borderEdgeIndex++
-            }
-        }
-    } while (keepGoing)
+function findBorderTransitionEdge(borderPath, func) {
+    borderPath.find(path => path.find(pathEdge => pathEdge.v1.edges.find(edge => !edge.onPath && func(edge))))
 }
 
 function isEdgeInternal(edge, path) {
