@@ -5,8 +5,8 @@ class GraphGenerator {
         const canvas = document.getElementById("generator-canvas")
         const outputElement = document.getElementsByClassName("generator-output")[0]
         let clickCount = 0
-        let lineStarted = false
         let mousePos = []
+        this.lineStarted = false
         this.vertices = []
         this.edges = []
         this.canvasWidth = canvas.width
@@ -15,16 +15,21 @@ class GraphGenerator {
 
         canvas.onclick = (e) => {
 
-            if (!lineStarted) {
+            if (!this.lineStarted) {
                 this.startLine(e.offsetX, e.offsetY)
             } else {
                 this.finishLine(e.offsetX, e.offsetY)
+
+                // quick hack to continue line from previous end point
+                // automatically
+                this.startLine(e.offsetX, e.offsetY)
+                clickCount++
             }
 
             clickCount++
-            lineStarted = clickCount % 2 === 1
+            this.lineStarted = clickCount % 2 === 1
 
-            this.draw(ctx, lineStarted, mousePos)
+            this.draw(ctx, mousePos)
             this.printGraph(outputElement)
         }
 
@@ -32,7 +37,16 @@ class GraphGenerator {
             mousePos[0] = e.offsetX
             mousePos[1] = e.offsetY
 
-            this.draw(ctx, lineStarted, mousePos)
+            this.draw(ctx, mousePos)
+        }
+
+        document.onkeyup = (e) => {
+            if (e.key === 'Escape') {
+                this.undo()
+                clickCount = 0
+                this.lineStarted = false
+                this.draw(ctx, mousePos)
+            }
         }
     }
 
@@ -50,13 +64,21 @@ class GraphGenerator {
         this.edges[this.edges.length-1].push(this.vertices.length-1)
     }
 
+    undo() {
+        this.vertices.pop()
+        if (!this.lineStarted)
+            this.vertices.pop()
+
+        this.edges.pop()
+    }
+
     snap(vert) {
         const target = this.vertices.find(curVert => (curVert[0] - vert[0])**2 + (curVert[1] - vert[1])**2 <= SNAP_RADIUS**2)
 
         return target ? target : vert
     }
 
-    draw(ctx, lineStarted, mousePos) {
+    draw(ctx, mousePos) {
         const vert_radius = 4
 
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
@@ -71,7 +93,7 @@ class GraphGenerator {
         ctx.strokeStyle = "black"
         this.edges.forEach((edge, i) => {
             const firstVert = this.vertices[edge[0]]
-            const secondVert = i === this.edges.length-1 && lineStarted ? mousePos : this.vertices[edge[1]]
+            const secondVert = i === this.edges.length-1 && this.lineStarted ? mousePos : this.vertices[edge[1]]
 
             ctx.beginPath()
             ctx.moveTo(firstVert[0], firstVert[1])
@@ -80,7 +102,6 @@ class GraphGenerator {
         })
 
         // show snap radius
-
         ctx.beginPath();
         ctx.strokeStyle = "#66aa66"
         ctx.arc(mousePos[0], mousePos[1], SNAP_RADIUS, 0, 2 * Math.PI);
