@@ -47,11 +47,10 @@ function findPolysAux(rootEdge, borderPath) {
         // This will find a free external edge to one of our completed closed paths.
         // It avoids picking up internal edges since they will all have been marked
         // non-free at this point, since the algorithm is depth first.
-
         let pathIndex = 0
         do {
             rootEdge = findTransitionEdge(completedPaths[pathIndex++], edge => edge.free)
-        } while (!rootEdge)
+        } while (!rootEdge && pathIndex < completedPaths.length)
 
         
 
