@@ -48,7 +48,7 @@ function findPolysAux(rootEdge, borderPath) {
 
         completedPaths.push(newClosedPath)
 
-        // This will find a free external edge to one of our completed closed paths.
+        // Finds a free external edge to one of our completed closed paths.
         // It avoids picking up internal edges since they will all have been marked
         // non-free at this point, since the algorithm is depth first.
         let pathIndex = 0
@@ -75,8 +75,8 @@ function findTransitionEdge(borderPath, func) {
  * with the each transition edge as a param. Traversal will finish when the provided function
  * returns false, or there are no transition edges remaining.
  * 
- * The 'transition edges' of a path are the edges connected to vertices on the path  which
- * are not themselves on the path. If the path is closed, they are the edges leading either
+ * The 'transition edges' of a path are the edges which are not themselves on the path, but
+ * connect to vertices which are. If the path is closed, they are the edges leading either
  * to the interior or exterior of the path from the path itself.
  */
 function traverseTransitionEdges(path, func) {
