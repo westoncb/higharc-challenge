@@ -24,7 +24,7 @@ function findPolys(data) {
 
 function findPolysAux(rootEdge, borderPath) {
     let polys = []
-    let completedClosedPaths = []
+    let completedPaths = []
 
     if (rootEdge === null) {
         rootEdge = findFreeInternalEdge(borderPath)
@@ -42,12 +42,12 @@ function findPolysAux(rootEdge, borderPath) {
             polys.push(newClosedPath.map(edge => edge.v1))
         }
 
-        completedClosedPaths.push(newClosedPath)
+        completedPaths.push(newClosedPath)
 
         // This will find a free external edge to one of our completed closed paths.
         // It avoids picking up internal edges since they will all have been marked
         // non-free at this point, since the algorithm is depth first.
-        rootEdge = findBorderTransitionEdge(completedClosedPaths, edge => edge.free)
+        rootEdge = completedPaths.find(completedPath => findBorderTransitionEdge(completedPath, edge => edge.free))        
 
     } while (rootEdge)
 
