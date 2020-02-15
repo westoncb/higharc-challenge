@@ -75,7 +75,7 @@ function findTransitionEdge(borderPath, func) {
 
 /**
  * Iterates through the 'transition edges' of a path, calling the given function
- * with the each transition edge as a param. Traversal will finish when the provided function
+ * with each transition edge as a param. Traversal will finish when the provided function
  * returns false, or there are no transition edges remaining.
  * 
  * The 'transition edges' of a path are the edges which are not themselves on the path, but
