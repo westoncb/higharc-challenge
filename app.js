@@ -143,3 +143,9 @@ function isClockwise(edgeList) {
 
     return sum >= 0;
 }
+
+// p1, p2, p3 are the points making up two line segments with a shared vertex.
+// p2 is the shared vertex.
+function crossProduct(p1, p2, p3) {
+    return (p2.x - p1.x)*(p3.y - p1.y) - (p2.y - p1.y)*(p3.x - p1.x)
+}
