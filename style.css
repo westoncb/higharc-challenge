@@ -2,10 +2,23 @@ html {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #generator-canvas {
     width: 800px;
     height: 500px;
     background-color: #ccc;
+}
+
+#graph-canvas {
+    width: 800px;
+    height: 500px;
+    background-color: #ccc;
+    margin-bottom: 5rem;
 }
 
 .generator-output {
