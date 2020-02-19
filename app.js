@@ -160,16 +160,26 @@ function findClosedPathWithinBorder(initialEdge, borderPath = []) {
 
     let currentEdge = initialEdge
     let currentVert = initialEdge.v2
-    let lastEdge = null
     let lastVert = initialEdge.v1
 
+    path.addVert(initialEdge.v1)
+
     do {
-        path.addVert(currentEdge.v1)
-        path.addVert(currentEdge.v2)
+        path.addVert(currentVert)
         path.addEdge(currentEdge)
 
-        currentEdge = nextEdge(currentEdge.v2, currentEdge)
-    } while (!path.hasVert(currentEdge.v2))
+        currentEdge = nextEdge(currentVert, currentEdge)
+        
+        if (currentEdge) {
+            lastVert = currentVert
+            currentVert = currentEdge.v1 !== lastVert ? currentEdge.v1 : currentEdge.v2
+        }
+    } while (!path.hasVert(currentVert) && currentEdge)
+
+    if (currentEdge)
+        path.addEdge(currentEdge)
+
+    console.log("PATH", path)
 
     // Edge following conditions:
     // no backtracking
@@ -182,16 +192,25 @@ function findClosedPathWithinBorder(initialEdge, borderPath = []) {
     return path
 }
 
-function nextEdge(vert, currentEdge) {
+function nextEdge(vert, lastEdge) {
     let edge
+    let edgeIndex = 0
     let count = 0
 
     do {
-        edge = randEdge(vert)
-        count++
-    } while (edge === currentEdge && count < 1600)
+        // edge = vert.edges[edgeIndex]
 
-    return edge
+        edge = randEdge(vert)
+
+        // edgeIndex++
+        count++
+    } while (!validEdge(edge, lastEdge) && edgeIndex < vert.edges.length && count < 200)
+
+    return edgeIndex <= vert.edges.length ? edge : null
+}
+
+function validEdge(candidateEdge, lastEdge) {
+    return candidateEdge !== lastEdge && candidateEdge.free
 }
 
 function randEdge(vert) {
