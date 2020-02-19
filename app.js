@@ -1,17 +1,25 @@
 
-const data = {
-    "vertices": [[0, 0], [2, 0], [2, 2], [0, 2]],
-    "edges": [[0, 1], [1, 2], [0, 2], [0, 3], [2, 3]]
-}
+// const data = {
+//     "vertices": [[0, 0], [2, 0], [2, 2], [0, 2]],
+//     "edges": [[0, 1], [1, 2], [0, 2], [0, 3], [2, 3]]
+// }
+
+const data = { "vertices": [[261, 84], [111, 243], [359, 320], [373, 183], [713, 180], [613, 394], [177, 414], [77, 308], [405, 428], [675, 447], [439, 464], [149, 468]], "edges": [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 2], [2, 6], [6, 7], [7, 1], [6, 8], [8, 2], [8, 5], [5, 9], [9, 10], [10, 8], [9, 4], [0, 4], [6, 11], [11, 10]] }
 
 window.onload = () => {
     new GraphGenerator()
+    
+    const graph = makeGraph(data)
 
-    // findPolys(data)
+    console.log("graph", graph)
+
+    findPolys(graph)
+
+    new GraphRenderer(graph)
 }
 
 function makeGraph(data) {
-    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: [] } })
+    const vertices = data.vertices.map(point => { return { x: point[0], y: point[1], edges: [], paths: []} })
     const edges = data.edges.map(edge => {
         return { v1: vertices[edge[0]], v2: vertices[edge[1]], free: true, onPath: false }
     })
@@ -20,13 +28,13 @@ function makeGraph(data) {
         edge.v1.edges.push(edge)
         edge.v2.edges.push(edge)
     })
+
+    return {edges, vertices}
 }
 
-function findPolys(data) {
+function findPolys(graph) {
 
-    makeGraph(data)
-
-    return findPolysAux(edges[0], null)
+    return findPolysAux(graph.edges[0], null)
 }
 
 function findPolysAux(rootEdge, borderPath) {
@@ -39,6 +47,10 @@ function findPolysAux(rootEdge, borderPath) {
 
     do {
         let newClosedPath = findClosedPathWithinBorder(rootEdge, borderPath)
+
+        window.currentPath = newClosedPath
+
+        break;
 
         const interiorPolys = findPolysAux(null, newClosedPath)
 
@@ -107,6 +119,7 @@ function traverseTransitionEdges(path, func) {
             } else {
 
                 pathEdgeIndex++
+                transitionEdgeIndex = 0
             }
         }
     } while (keepGoing)
@@ -118,11 +131,45 @@ function isEdgeInternal(edge, path) {
     const edgeIndex = path.findIndex(pathEdge => pathEdge === edge)
     const nextEdge = path[(edgeIndex + 1) % path.length]
 
-    edge.v2
+    // edge.v2
+}
+
+class Path {
+    constructor() {
+        this.vertices = []
+        this.edges = []
+    }
+
+    addVert(vert) {
+        vert.paths.push(this)
+        this.vertices.push(vert)
+    }
+
+    addEdge(edge) {
+        this.edges.push(edge)
+        edge.onPath = true
+    }
+
+    hasVert(vert) {
+        return this.vertices.includes(vert)
+    }
 }
 
 function findClosedPathWithinBorder(initialEdge, borderPath = []) {
-    const closedPath = []
+    const path = new Path()
+
+    let currentEdge = initialEdge
+    let currentVert = initialEdge.v2
+    let lastEdge = null
+    let lastVert = initialEdge.v1
+
+    do {
+        path.addVert(currentEdge.v1)
+        path.addVert(currentEdge.v2)
+        path.addEdge(currentEdge)
+
+        currentEdge = nextEdge(currentEdge.v2, currentEdge)
+    } while (!path.hasVert(currentEdge.v2))
 
     // Edge following conditions:
     // no backtracking
@@ -131,6 +178,30 @@ function findClosedPathWithinBorder(initialEdge, borderPath = []) {
     // edge cannot be an external edge of borderPath
 
     // mark all edges here as onPath
+
+    return path
+}
+
+function nextEdge(vert, currentEdge) {
+    let edge
+    let count = 0
+
+    do {
+        edge = randEdge(vert)
+        count++
+    } while (edge === currentEdge && count < 1600)
+
+    return edge
+}
+
+function randEdge(vert) {
+    const index = rand(0, vert.edges.length - 1)
+    console.log(index, vert.edges.length)
+    return vert.edges[index]
+}
+
+function rand(min, max) {
+    return Math.round(Math.random() * (max-min) + min)
 }
 
 // Based on https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order

@@ -46,30 +46,49 @@ class GraphGenerator {
                 clickCount = 0
                 this.lineStarted = false
                 this.draw(ctx, mousePos)
+                this.printGraph(outputElement)
             }
         }
     }
 
     startLine(x, y) {
-        const newVert = [x, y]
-        const revisedVert = this.snap(newVert)
-        this.vertices.push(revisedVert)
-        this.edges.push([this.vertices.length-1])
+        const newVert = this.snap([x, y])
+        const vertIndex = this.addVertIfNecessary(newVert)
+        this.edges.push([vertIndex])
     }
 
     finishLine(x, y) {
-        const newVert = [x, y]
-        const revisedVert = this.snap(newVert)
-        this.vertices.push(revisedVert)
-        this.edges[this.edges.length-1].push(this.vertices.length-1)
+        const newVert = this.snap([x, y])
+        const vertIndex = this.addVertIfNecessary(newVert)
+        this.edges[this.edges.length-1].push(vertIndex)
+    }
+
+    /**
+     * Adds the vertex if it isn't already in the array and
+     * returns its new index. Otherwise returns old index.
+     */
+    addVertIfNecessary(newVert) {
+        let vertIndex = this.vertices.findIndex(vert => vert[0] === newVert[0] && vert[1] === newVert[1])
+        if (vertIndex === -1) {
+            this.vertices.push(newVert)
+            vertIndex = this.vertices.length - 1
+        }
+
+        return vertIndex
     }
 
     undo() {
-        this.vertices.pop()
-        if (!this.lineStarted)
-            this.vertices.pop()
+        const lastEdge = this.edges.pop()
 
-        this.edges.pop()
+        // There may be one or two verts in the edge at this point.
+        // For each of those verts, only remove from vertices array
+        // if this edge is the only one referencing it.
+        lastEdge.forEach(vertIndex => {
+            const referenceCount = this.edges.reduce((total, edge) => (edge[0] === vertIndex || edge[1] === vertIndex) ? total + 1 : total, 0)
+            if (referenceCount === 1) {
+                this.vertices.splice(vertIndex, 1)
+            }
+        })
     }
 
     snap(vert) {
