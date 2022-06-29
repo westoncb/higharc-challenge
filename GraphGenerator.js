@@ -114,18 +114,18 @@ class GraphGenerator {
 
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
 
-        this.vertices.forEach(vert => {
+        this.vertices.forEach((vert, i) => {
             const dist = Math.sqrt(
                 (vert[0] - mousePos[0]) ** 2 + (vert[1] - mousePos[1]) ** 2
             )
             const withinSnapRadius = dist - SNAP_RADIUS <= 0
             0
-
-            console.log("withinSnapRadius", dist, withinSnapRadius)
+            const notLastPoint = i < this.vertices.length - 1
 
             ctx.beginPath()
             ctx.arc(vert[0], vert[1], vert_radius, 0, 2 * Math.PI, false)
-            ctx.fillStyle = withinSnapRadius ? "#00ff66" : "black"
+            ctx.fillStyle =
+                withinSnapRadius && notLastPoint ? "#00ff66" : "black"
             ctx.fill()
         })
 
